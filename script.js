@@ -16,10 +16,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const word = wordInput.value.trim();
         if (word === "") {
+            displayemptySearch.style.color = "red";
             displayemptySearch.textContent = "Type a word";
             return; 
         }
 
+        displaySearching.style.color = "green";
         displaySearching.textContent = "Searching...";
         displayemptySearch.textContent = "";
         displayDefinition.innerHTML = ""; 
@@ -29,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(function(response) {
             if (response.ok === false) {
                 displaySearching.textContent = "";
+                displayemptySearch.style.color = "red";
                 displayemptySearch.textContent = "Word not found!";
                 return null; 
             }
@@ -43,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function() {
             displayName.textContent = "Word: " + wordData.word;
             displayPronunciation.textContent = wordData.phonetic || "N/A";
 
-            // AUDIO LOGIC (Finding the first available sound)
             const audioObject = wordData.phonetics.find(function(item) {
                 return item.audio !== "";
             });
@@ -54,20 +56,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 displayPronunciationAudio.textContent = "Listen to Pronunciation";
             }
 
-            // --- DISPLAYING JUST 1 MEANING ---
-            // We grab ONLY the first object in the meanings array
-            const firstMeaning = wordData.meanings[0];
+            const Meaning = wordData.meanings[0];
 
-            if (firstMeaning) {
+            if (Meaning) {
                 const posLabel = document.createElement("p");
-                posLabel.textContent = firstMeaning.partOfSpeech; 
+                posLabel.textContent = Meaning.partOfSpeech; 
                 displayDefinition.appendChild(posLabel);
 
                 const list = document.createElement("ul");
                 
-                // We still loop through all definitions for this ONE meaning
-                firstMeaning.definitions.forEach(function(def) {
-                    const defList = document.createElement("li"); // Using your defList name
+                Meaning.definitions.forEach(function(def) {
+                    const defList = document.createElement("li"); 
                     defList.textContent = def.definition;
                     list.appendChild(defList);
                 });
@@ -75,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 displayDefinition.appendChild(list);
             }
 
-            // --- SYNONYMS USING SPREAD SYNTAX ---
             const synonyms = wordData.meanings[0].synonyms;
             if (synonyms && synonyms.length > 0) {
                 const synonymList = [...synonyms];
